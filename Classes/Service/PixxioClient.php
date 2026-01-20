@@ -235,17 +235,23 @@ final class PixxioClient
             $options->searchTerm = urlencode($queryExpression);
         }
 
-        if (isset($orderings['resource.filename'])) {
-            $options->sortBy = 'fileName';
-            $options->sortDirection = ($orderings['resource.filename'] === SupportsSortingInterface::ORDER_DESCENDING) ? 'descending' : 'ascending';
-        }
-
-        if (isset($orderings['lastModified'])) {
-            $options->sortBy = 'uploadDate';
-            $options->sortDirection = ($orderings['lastModified'] === SupportsSortingInterface::ORDER_DESCENDING) ? 'descending' : 'ascending';
-        }
 
         $uri = new Uri( $this->apiEndpointUri . '/json/files');
+        /*
+         * With the current API we get an error of the following type: `The specified sortBy is invalid.`.
+         * I just deactivated the option sortBy for now. In the long run it would be recommended to change to the better documented API: https://api.pixxio.com/docs#tag/Files/operation/FilesGet
+         *
+         * if (isset($orderings['resource.filename'])) {
+         *     $options->sortBy = 'fileName';
+         *     $options->sortDirection = ($orderings['resource.filename'] === SupportsSortingInterface::ORDER_DESCENDING) ? 'descending' : 'ascending';
+         * }
+         *
+         * if (isset($orderings['lastModified'])) {
+         *     $options->sortBy = 'uploadDate';
+         *     $options->sortDirection = ($orderings['lastModified'] === SupportsSortingInterface::ORDER_DESCENDING) ? 'descending' : 'ascending';
+         * }
+         *
+         */
         $uri = $uri->withQuery(
             'accessToken=' . $this->accessToken . '&' .
             'options=' . \GuzzleHttp\json_encode($options)
