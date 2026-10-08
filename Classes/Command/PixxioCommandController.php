@@ -178,6 +178,8 @@ class PixxioCommandController extends CommandController
                 $assetModified = true;
             }
 
+            $this->emitAssetMetadataUpdated($asset, $assetProxy);
+
             if ($assetModified) {
                 $this->assetRepository->update($asset);
                 $assetsWereUpdated = true;
@@ -279,6 +281,12 @@ class PixxioCommandController extends CommandController
             return null;
         }
 
+        $importedAsset = $this->importedAssetRepository->findOneByLocalAssetIdentifier($asset->getIdentifier());
+        if (!$importedAsset instanceof ImportedAsset) {
+            $this->outputLine('   error   Asset "%s" (%s) has no pixx.io import record', [$asset->getLabel(), $asset->getIdentifier()]);
+            return null;
+        }
+
         try {
             $assetProxy = $asset->getAssetProxy();
         } catch (AccessToAssetDeniedException $exception) {
@@ -292,5 +300,12 @@ class PixxioCommandController extends CommandController
         }
 
         return $assetProxy;
+    }
+
+    /**
+     * @Flow\Signal
+     */
+    protected function emitAssetMetadataUpdated(Asset $asset, PixxioAssetProxy $assetProxy): void
+    {
     }
 }
